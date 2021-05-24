@@ -1,8 +1,10 @@
 import os
+import webbrowser
 from pathlib import Path
 
 from jina import Flow
 from jina.helper import countdown
+from jina.logging import default_logger
 from jina.parsers.helloworld import set_hw_parser
 
 if __name__ == '__main__':
@@ -75,16 +77,14 @@ def hello_world(args):
     os.environ['HW_WORKDIR'] = args.workdir
 
     # now comes the real work
-    # load index flow from a YAML file
     f = Flow().add(uses=MyEncoder, parallel=2).add(uses=MyIndexer).add(uses=MyEvaluator)
-
     # run it!
     with f:
         f.index(
             index_generator(num_docs=targets['index']['data'].shape[0], target=targets),
             request_size=args.request_size,
         )
-
+        f.use_rest_gateway(args.port_expose)
         # wait for couple of seconds
         countdown(
             3,
@@ -104,7 +104,7 @@ def hello_world(args):
         #     request_size=args.request_size,
         #     parameters={'top_k': args.top_k},
         # )
-
+        '''
         f.post(
             '/eval',
             query_generator(
@@ -114,10 +114,28 @@ def hello_world(args):
             on_done=print_result,
             request_size=args.request_size,
             parameters={'top_k': args.top_k},
-        )
+        )'''
 
         # write result to html
-        write_html(os.path.join(args.workdir, 'static/index.html'))
+        #write_html(os.path.join('static/chatbot.html'))
+        url_html_path = 'file://' + os.path.abspath(
+            os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), 'static/chatbot.html'
+            )
+        )
+        try:
+            webbrowser.open(url_html_path, new=2)
+        except:
+            pass  # intentional pass, browser support isn't cross-platform
+        finally:
+            default_logger.success(
+                f'You should see a demo page opened in your browser, '
+                f'if not, you may open {url_html_path} manually'
+            )
+
+        f.block()
+        # if not args.unblock_query_flow:
+        #     f.block()
 
 
 if __name__ == '__main__':
