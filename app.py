@@ -51,20 +51,12 @@ def hello_world(args):
 
     targets = {
         "index-labels": {
-            "url": args.index_labels_url,
+            "label": args.items['product_name'],
             "filename": os.path.join(args.workdir, "index-labels"),
         },
-        "query-labels": {
-            "url": args.query_labels_url,
-            "filename": os.path.join(args.workdir, "query-labels"),
-        },
         "index": {
-            "url": args.index_data_url,
+            "image_urls": args.items['large'],
             "filename": os.path.join(args.workdir, "index-original"),
-        },
-        "query": {
-            "url": args.query_data_url,
-            "filename": os.path.join(args.workdir, "query-original"),
         },
     }
 
@@ -144,7 +136,6 @@ if __name__ == "__main__":
         "r",
     ) as f:
         items = f.read().split('\n')
-        print(f'{len(items)}')
         selected_fields = ["uniq_id", "product_url",
                             "product_name",
                             "large",
@@ -160,15 +151,17 @@ if __name__ == "__main__":
                             "product_details__k_v_pairs"]
         filtered_items = []
         for item in items:
-            print(type(item))
-            assert(type(item)==dict)
-            filtered_item = {}
-            for k,v in item.items():
-                if k in selected_fields:
-                    if k in ['large', 'other_items_customers_buy']:
-                        filtered_item[k] = v.split('|')
-                    filtered_item[k] = v
-            filtered_items.append(filtered_item)
+            try:
+                item = json.loads(item)
+                filtered_item = {}
+                for k,v in item.items():
+                    if k in selected_fields:
+                        if k in ['large', 'other_items_customers_buy']:
+                            filtered_item[k] = v.split('|')
+                        filtered_item[k] = v
+                filtered_items.append(filtered_item)
+            except json.decoder.JSONDecodeError:
+                print(item)
         # large_image_urls = items[0]['large']
 
         #for filtered_item in filtered_items:
