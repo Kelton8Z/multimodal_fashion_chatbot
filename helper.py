@@ -9,7 +9,7 @@ import numpy as np
 
 from jina import Document
 from jina.helper import colored
-from jina.logging import default_logger
+from jina.logging.logger import JinaLogger
 from jina.logging.profile import ProgressBar
 
 result_html = []
@@ -110,8 +110,8 @@ def write_html(html_path):
     """
 
     with open(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/demo.html')
-    ) as fp, open(html_path, 'w') as fw:
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/chatbot.html')
+    ) as fp, open(html_path, 'r+') as fw:
         t = fp.read()
         t = t.replace('{% RESULT %}', '\n'.join(result_html))
         t = t.replace(
@@ -132,18 +132,18 @@ def write_html(html_path):
     except:
         pass  # intentional pass, browser support isn't cross-platform
     finally:
-        default_logger.success(
+        JinaLogger.success(
             f'You should see a "hello-world.html" opened in your browser, '
             f'if not you may open {url_html_path} manually'
         )
 
     colored_url = colored('https://opensource.jina.ai', color='cyan', attrs='underline')
-    default_logger.success(
+    JinaLogger.success(
         f'🤩 Intrigued? Play with "jina hello fashion --help" and learn more about Jina at {colored_url}'
     )
 
 
-def download_data(targets, download_proxy=None, task_name='download fashion-mnist'):
+def download_data(targets, download_proxy=None, task_name='download Amazon fashion data'):
     """
     Download data.
 
@@ -159,7 +159,7 @@ def download_data(targets, download_proxy=None, task_name='download fashion-mnis
         )
         opener.add_handler(proxy)
     urllib.request.install_opener(opener)
-    with ProgressBar(task_name=task_name, batch_unit='') as t:
+    with ProgressBar(task_name=task_name) as t:
         for k, v in targets.items():
             if not os.path.exists(v['filename']):
                 urllib.request.urlretrieve(
@@ -168,15 +168,15 @@ def download_data(targets, download_proxy=None, task_name='download fashion-mnis
             if k == 'index-labels' or k == 'query-labels':
                 v['data'] = load_labels(v['filename'])
             if k == 'index' or k == 'query':
-                v['data'] = load_mnist(v['filename'])
+                v['data'] = load_data(v['filename'])
 
 
-def load_mnist(path):
+def load_data(path):
     """
-    Load MNIST data
+    Load Amazon dataset data
 
     :param path: path of data
-    :return: MNIST data in np.array
+    :return: Amazon data in np.array
     """
 
     with gzip.open(path, 'rb') as fp:

@@ -1,9 +1,8 @@
 import os
-import json
-from pyld import jsonld
-import webbrowser
 from pathlib import Path
 from argparse import Namespace
+
+import json
 
 from jina import flow
 from jina.helper import countdown
@@ -145,27 +144,39 @@ if __name__ == "__main__":
         "r",
     ) as f:
         items = f.read().split('\n')
-        print(f'first item {items[0]}')
-        print(f'first first item {items[0][0]}')
+        print(f'{len(items)}')
+        selected_fields = ["uniq_id", "product_url",
+                            "product_name",
+                            "large",
+                            "brand",
+                            "sales_price",
+                            "rating",
+                            "sales_rank_in_parent_category",
+                            "sales_rank_in_child_category",
+                            "delivery_type",
+                            "meta_keywords",
+                            "best_seller_tag__y_or_n",
+                            "other_items_customers_buy",
+                            "product_details__k_v_pairs"]
+        filtered_items = []
+        for item in items:
+            print(type(item))
+            assert(type(item)==dict)
+            filtered_item = {}
+            for k,v in item.items():
+                if k in selected_fields:
+                    if k in ['large', 'other_items_customers_buy']:
+                        filtered_item[k] = v.split('|')
+                    filtered_item[k] = v
+            filtered_items.append(filtered_item)
         # large_image_urls = items[0]['large']
-        # print(large_image_urls)
-        #data = jsonld.expand(f.read())
-        # from bs4 import BeautifulSoup
-        #
-        # parser = "html.parser"
-        # soup = BeautifulSoup(f.read(), parser)
-        # data = soup.find("script", {'type': 'application/ld+json'})
-        # print(data.contents)
-        # print(json.dumps(expanded, indent=2))
-        # data = json.load(f)
 
-# args = Namespace(workdir='292303e8-0083-43ed-b0c7-93cec48a1e88', download_proxy=None,
-#                  index_data_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz',
-#                  index_labels_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz',
-#                  query_data_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz',
-#                  query_labels_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz',
+        #for filtered_item in filtered_items:
+        args = Namespace(workdir='292303e8-0083-43ed-b0c7-93cec48a1e88', download_proxy=None, items=filtered_items)
+                         #index_data_urls='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz',
+                         #index_labels_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz',
 #                  request_size=1024, num_query=128, top_k=50)
-# hello_world(args)
+        hello_world(args)
 
 """
 "root":{22 items
