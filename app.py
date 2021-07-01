@@ -144,19 +144,21 @@ if __name__ == "__main__":
         "marketing_sample_for_amazon_com-amazon_fashion_products__20200201_20200430__30k_data.ldjson",
         "r",
     ) as f:
-        # print(f.read().split('\n')[1])
+        items = f.read().split('\n')
+        print(f'first item {items[0]}')
+        print(f'first first item {items[0][0]}')
+        # large_image_urls = items[0]['large']
+        # print(large_image_urls)
         #data = jsonld.expand(f.read())
-        from bs4 import BeautifulSoup
-
-        parser = "html.parser"
-        soup = BeautifulSoup(f.read(), parser)
-        data = soup.find("script", {'type': 'application/ld+json'})
-        print(data.contents)
+        # from bs4 import BeautifulSoup
+        #
+        # parser = "html.parser"
+        # soup = BeautifulSoup(f.read(), parser)
+        # data = soup.find("script", {'type': 'application/ld+json'})
+        # print(data.contents)
         # print(json.dumps(expanded, indent=2))
         # data = json.load(f)
 
-        print(type(data))
-        print(len(data))
 # args = Namespace(workdir='292303e8-0083-43ed-b0c7-93cec48a1e88', download_proxy=None,
 #                  index_data_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz',
 #                  index_labels_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz',
