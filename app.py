@@ -5,7 +5,7 @@ from argparse import Namespace
 import json
 import webbrowser
 
-from jina import flow
+from jina import Flow, Executor, requests
 from jina.helper import countdown
 from jina.logging.logger import JinaLogger
 from helper import (
@@ -53,14 +53,14 @@ def hello_world():
     # os.environ["HW_WORKDIR"] = args.workdir
 
     # now comes the real work
-    f = flow().add(uses=MyEncoder).add(uses=MyIndexer).add(uses=MyEvaluator)
+    f = Flow().add(uses=MyEncoder).add(uses=MyIndexer).add(uses=MyEvaluator)
     # run it!
     with f:
         f.index(
             index_generator(num_docs=len(targets["index"]["data"]), target=targets),
             #request_size=args.request_size,
         )
-        f.use_rest_gateway()
+        f.protocol = 'http'
         # wait for couple of seconds
         countdown(
             3,
