@@ -7,10 +7,10 @@ import webbrowser
 
 from jina import Flow, Executor, requests
 from jina.helper import countdown
-from jina.logging.logger import JinaLogger
+import logging
 from helper import (
     print_result,     write_html,     download_data,     index_generator,     query_generator,     colored, )
-from executors import MyEncoder, MyIndexer, MyEvaluator
+from executors import MyTransformer, MyEncoder, MyIndexer, MyEvaluator
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -53,14 +53,16 @@ def hello_world():
     # os.environ["HW_WORKDIR"] = args.workdir
 
     # now comes the real work
-    f = Flow().add(uses=MyEncoder).add(uses=MyIndexer).add(uses=MyEvaluator)
+    f = Flow(cors=True, restful=True).add(uses=MyTransformer, parallel=2).add(uses=MyIndexer).add(uses=MyEvaluator)
     # run it!
     with f:
-        f.index(
-            index_generator(num_docs=len(targets["index"]["data"]), target=targets),
+        input = list(index_generator(num_docs=len(targets["index"]["data"]), target=targets))
+        f.post(on='/index', inputs=input, show_progress=True
             #request_size=args.request_size,
         )
         f.protocol = 'http'
+        f.port_expose = 8080
+
         # wait for couple of seconds
         countdown(
             3,
@@ -84,7 +86,7 @@ def hello_world():
         )"""
 
         # write result to html
-        #write_html(os.path.join("static/chatbot.html"))
+        # write_html(os.path.join("static/chatbot.html"))
 
         url_html_path = 'file://' + os.path.abspath(
             os.path.join(
@@ -97,7 +99,7 @@ def hello_world():
         except:
             pass  # intentional pass, browser support isn't cross-platform
         finally:
-            JinaLogger.success(
+            logging.info(
                 f'You should see a demo page opened in your browser, '
                 f'if not, you may open {url_html_path} manually'
             )
