@@ -1,10 +1,40 @@
 from typing import Tuple, Dict, Optional
 
+import clip
 import torch
 import numpy as np
 from transformers import AutoModel, AutoTokenizer
 
 from jina import Executor, DocumentArray, requests, Document
+
+class CLIPEncoder(Executor):
+    """Encode image into embeddings."""
+
+    def __init__(self, model_name: str = 'ViT-B/32', *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        torch.set_num_threads(1)
+        self.model, _ = clip.load(model_name, 'cpu')
+
+    @requests(on='/index')
+    def encode(self, docs: DocumentArray, **kwargs):
+        if not docs:
+            return
+        with torch.no_grad():
+            for doc in docs:
+                content = np.expand_dims(doc.content, axis=0)
+                input = torch.from_numpy(content.astype('float32'))
+                embed = self.model.encode_image(input)
+                doc.embedding = embed.cpu().numpy().flatten()
+
+    @requests(on='/search')
+    def encode(self, docs: DocumentArray, **kwargs):
+        if not docs:
+            return
+        with torch.no_grad():
+            for doc in docs:
+                input_torch_tensor = clip.tokenize(doc.content)
+                embed = self.model.encode_text(input_torch_tensor)
+                doc.embedding = embed.cpu().numpy().flatten()
 
 class MyTransformer(Executor):
     """Transformer executor class """
@@ -102,8 +132,9 @@ class MyIndexer(Executor):
         idx, dist = self._get_sorted_top_k(dists, 1)
         for _q, _ids, _dists in zip(docs, idx, dist):
             for _id, _dist in zip(_ids, _dists):
-                d = Document(self._docs[int(_id)], copy=True)
-                print(d)
+                d = Document(self._docs[int(_id)], copy=True, modality='image')
+                # d.convert_uri_to_datauri()
+                print(d.uri)
                 d.evaluations['cosine'] = 1 - _dist
                 _q.matches.append(d)
 

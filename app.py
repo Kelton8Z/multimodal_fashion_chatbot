@@ -10,18 +10,13 @@ from jina.helper import countdown
 import logging
 from helper import (
     print_result,     write_html,     download_data,     index_generator,     query_generator,     colored, )
-from executors import MyTransformer, MyEncoder, MyIndexer, MyEvaluator
+from executors import CLIPEncoder, MyIndexer, MyEvaluator, MyTransformer
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def hello_world():
     """
-    Runs Jina's Hello World.
-
-    Usage:
-        Use it via CLI :command:`jina hello-world`.
-
     Description:
         It downloads Amazon fashion dataset and :term:`Indexer<indexes>` 50,000 images.
         The index is stored into 4 *shards*. It randomly samples 128 unseen images as :term:`Queries<Searching>`
@@ -32,14 +27,22 @@ def hello_world():
     """
 
     # Path(args.workdir).mkdir(parents=True, exist_ok=True)
-
+    image_files = list(os.walk('./data'))
+    '''
+    [('./', ['stamps', 't_shirts'], []), 
+    ('./stamps', [], ['8.jpg', '9.jpg', '14.jpg', 'stamp1.jpeg']), 
+    ('./t_shirts', [], ['shirt1.jpeg', 'shirt3.png', 'shirt2.png'])]
+    '''
+    stamps = list(map(lambda x: image_files[1][0]+'/'+x, image_files[1][2]))
+    t_shirts = list(map(lambda x: image_files[2][0]+'/'+x, image_files[2][2]))
+    image_files = stamps + t_shirts
     targets = {
         # "index-labels": {
         #     "label": args.items['product_name'],
         #     "filename": os.path.join(args.workdir, "index-labels"),
         # },
         "index": {
-            'data': ['data/stamps/stamp1.jpeg', 'data/t_shirts/shirt1.jpeg']
+            'data': image_files
             # "image_urls": args.items['large'],
             # "filename": os.path.join(args.workdir, "index-original"),
         },
@@ -52,8 +55,8 @@ def hello_world():
     # os.environ["JINA_ARRAY_QUANT"] = "fp16"
     # os.environ["HW_WORKDIR"] = args.workdir
 
-    # now comes the real work
-    f = Flow(cors=True, restful=True).add(uses=MyTransformer, parallel=2).add(uses=MyIndexer).add(uses=MyEvaluator)
+    # now comes the real work CLIPEncoder
+    f = Flow(cors=True, restful=True).add(uses=CLIPEncoder, parallel=2).add(uses=MyIndexer).add(uses=MyEvaluator)
     # run it!
     with f:
         input = list(index_generator(num_docs=len(targets["index"]["data"]), target=targets))
