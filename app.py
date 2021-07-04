@@ -106,18 +106,9 @@ def hello_world():
 
         f.block()
 
-        # f.search(
-        #     query_generator(
-        #         num_docs=args.num_query, target=targets, with_groundtruth=True
-        #     ),
-        #     shuffle=True,
-        #     on_done=print_result,
-        #     request_size=args.request_size,
-        #     parameters={"top_k": args.top_k},
-        # )
-
 
 if __name__ == "__main__":
+    hello_world()
 #     with open(
 #         "marketing_sample_for_amazon_com-amazon_fashion_products__20200201_20200430__30k_data.ldjson",
 #         "r",
@@ -156,5 +147,3 @@ if __name__ == "__main__":
 #                          #index_data_urls='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz',
 #                          #index_labels_url='http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz',
 # #                  request_size=1024, num_query=128, top_k=50)
-
-    hello_world()

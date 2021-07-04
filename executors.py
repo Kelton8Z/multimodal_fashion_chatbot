@@ -89,15 +89,12 @@ class MyIndexer(Executor):
 
     @requests(on='/index')
     def index(self, docs: 'DocumentArray', **kwargs):
-        print(docs)
         self._docs.extend(docs)
-        print(f' self docs {self._docs}')
-        assert(bool(self._docs))
+
 
     @requests(on=['/search', '/eval'])
     def search(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         a = np.stack(docs.get_attributes('embedding'))
-        assert(bool(self._docs))
         b = np.stack(self._docs.get_attributes('embedding'))
         q_emb = _ext_A(_norm(a))
         d_emb = _ext_B(_norm(b))
@@ -106,6 +103,7 @@ class MyIndexer(Executor):
         for _q, _ids, _dists in zip(docs, idx, dist):
             for _id, _dist in zip(_ids, _dists):
                 d = Document(self._docs[int(_id)], copy=True)
+                print(d)
                 d.evaluations['cosine'] = 1 - _dist
                 _q.matches.append(d)
 
