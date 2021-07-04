@@ -42,15 +42,15 @@ Chat
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 300px;
-    height: 50vh;
-    max-height: 500px;
+    transform: translate(-90%, -50%);
+    width: 500px;
+    height: 75vh;
+    max-height: 1000px;
     z-index: 2;
     overflow: hidden;
     box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
     background: rgba(0, 0, 0, 0.5);
-    border-radius: 20px;
+    border-radius: 20px 0px 0px 20px;
     display: flex;
     justify-content: space-between;
     flex-direction: column;
@@ -455,4 +455,69 @@ Bounce
     display: inline-block;
     z-index: 2;
     position: absolute;
+}
+
+/*--------------------
+Dispaly
+--------------------*/
+
+.display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(12.5%, -50%);
+    width: 400px;
+    height: 75vh;
+    max-height: 1000px;
+    z-index: 2;
+    overflow: hidden;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 0px 20px 20px 0px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.render {
+    flex: 1 1 auto;
+    color: rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 30vh;
+}
+
+.render-img {
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.assistant {
+    flex: 1 1 auto;
+    color: rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 45vh;
+}
+
+.assistant-quarter-div {
+    width: 50%;
+    height: 50%;
+    float: left;
+}
+
+.assistant-quarter-div-img {
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    position: relative;
+    transform: translate(-100%, -50%);
+    max-width: 100px;
 }
