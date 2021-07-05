@@ -87,8 +87,7 @@ function jinaMessage(question) {
         $('<div class="message new">' +
             '<figure class="avatar">' +
             '<img src="https://api.jina.ai/logo/logo-product/jina-core/logo-only/colored/Product%20logo_Core_Colorful%402x.png" /></figure>' +
-            '<div class="question">' + top_answer["text"] + '</div>' +
-            top_answer["tags"]["answer"] +
+            '<div class="question">' + '<img src= "{{url_for('static', filename=top_answer["uri"])}}"/>' + '</div>' +
             '</div>').appendTo($('.mCSB_container')).addClass('new');
         setDate();
         updateScrollbar();
