@@ -13,21 +13,22 @@ class CLIPEncoder(Executor):
     def __init__(self, model_name: str = 'ViT-B/32', *args, **kwargs):
         super().__init__(*args, **kwargs)
         torch.set_num_threads(1)
-        self.model, _ = clip.load(model_name, 'cpu')
+        self.model, self.preprocess = clip.load(model_name, 'cpu')
 
     @requests(on='/index')
-    def encode(self, docs: DocumentArray, **kwargs):
+    def encode_index(self, docs: DocumentArray, **kwargs):
         if not docs:
             return
+        from PIL import Image
         with torch.no_grad():
             for doc in docs:
-                content = np.expand_dims(doc.content, axis=0)
-                input = torch.from_numpy(content.astype('float32'))
-                embed = self.model.encode_image(input)
+                image = self.preprocess(Image.open(doc.uri)).unsqueeze(0).to('cpu')
+                embed = self.model.encode_image(image)
                 doc.embedding = embed.cpu().numpy().flatten()
 
+
     @requests(on='/search')
-    def encode(self, docs: DocumentArray, **kwargs):
+    def encode_query(self, docs: DocumentArray, **kwargs):
         if not docs:
             return
         with torch.no_grad():
@@ -109,8 +110,11 @@ class MyTransformer(Executor):
             hidden_states = outputs.hidden_states
 
             embeds = self._compute_embedding(hidden_states, input_tokens)
+            assert(embeds)
+            print(f'embeds {embeds}')
             for doc, embed in zip(docs, embeds):
                 doc.embedding = embed
+        print(f'docs {docs}')
 
 class MyIndexer(Executor):
     def __init__(self, **kwargs):
@@ -125,6 +129,9 @@ class MyIndexer(Executor):
     @requests(on=['/search', '/eval'])
     def search(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         a = np.stack(docs.get_attributes('embedding'))
+        encoder = CLIPEncoder()
+        encoder.encode_query(self._docs)
+        print(f' self docs {self._docs}')
         b = np.stack(self._docs.get_attributes('embedding'))
         q_emb = _ext_A(_norm(a))
         d_emb = _ext_B(_norm(b))
@@ -137,6 +144,7 @@ class MyIndexer(Executor):
                 print(d.uri)
                 d.evaluations['cosine'] = 1 - _dist
                 _q.matches.append(d)
+
 
     @staticmethod
     def _get_sorted_top_k(
