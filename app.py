@@ -5,7 +5,7 @@ from argparse import Namespace
 import json
 import webbrowser
 
-from jina import Flow, Executor, requests
+from jina import Flow, Executor, requests, Document, DocumentArray
 from jina.helper import countdown
 import logging
 from helper import (
@@ -36,6 +36,10 @@ def hello_world():
     stamps = list(map(lambda x: image_files[1][0]+'/'+x, image_files[1][2]))
     t_shirts = list(map(lambda x: image_files[2][0]+'/'+x, image_files[2][2]))
     image_files = stamps + t_shirts
+
+    docs = DocumentArray([Document(uri=img) for img in image_files])
+
+    # print(f'encoded docs {docs}')
     targets = {
         # "index-labels": {
         #     "label": args.items['product_name'],
@@ -48,19 +52,13 @@ def hello_world():
         },
     }
 
-    # download the data
-    # download_data(targets, args.download_proxy)
-    #
-    # # reduce the network load by using `fp16`, or even `uint8`
-    # os.environ["JINA_ARRAY_QUANT"] = "fp16"
-    # os.environ["HW_WORKDIR"] = args.workdir
 
-    # now comes the real work CLIPEncoder
-    f = Flow(cors=True, restful=True).add(uses=CLIPEncoder, parallel=2).add(uses=MyIndexer).add(uses=MyEvaluator)
+    # now comes the real work
+    f = Flow(cors=True, restful=True).add(uses=CLIPEncoder).add(uses=MyIndexer).add(uses=MyEvaluator)
     # run it!
     with f:
-        input = list(index_generator(num_docs=len(targets["index"]["data"]), target=targets))
-        f.post(on='/index', inputs=input, show_progress=True
+        #input_gen = index_generator(num_docs=len(targets["index"]["data"]), target=targets)
+        indexed = f.index(inputs=docs, show_progress=True, return_results=True
             #request_size=args.request_size,
         )
         f.protocol = 'http'
