@@ -82,12 +82,15 @@ function jinaMessage(question) {
         dataType: "json",
     }).success(function (data, textStatus, jqXHR) {
         console.info(data)
-        var top_answer = data['data']['docs'][0]['matches'][0]
+        var top_4_answer = data['data']['docs'][0]['matches'][:4]
+        console.log(top_4_answer)
+        var data = top_4_answer.map(match => match.uri);
         $('.message.loading').remove();
         $('<div class="message new">' +
             '<figure class="avatar">' +
             '<img src="https://api.jina.ai/logo/logo-product/jina-core/logo-only/colored/Product%20logo_Core_Colorful%402x.png" /></figure>' +
-            '<div class="question">' + '<img src= "{{url_for('static', filename=top_answer["uri"])}}"/>' + '</div>' +
+            '<div class="question">' + data +
+            '</div>'+
             '</div>').appendTo($('.mCSB_container')).addClass('new');
         setDate();
         updateScrollbar();
