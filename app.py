@@ -10,7 +10,7 @@ from jina.helper import countdown
 import logging
 from helper import (
     print_result,     write_html,     download_data,     index_generator,     query_generator,     colored, )
-from executors import CLIPEncoder, MyIndexer, MyEvaluator, MyTransformer
+from executors import CLIPEncoder, MyIndexer, MyEvaluator
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -27,7 +27,7 @@ def hello_world():
     """
 
     # Path(args.workdir).mkdir(parents=True, exist_ok=True)
-    image_files = list(os.walk('./data'))
+    image_files = list(os.walk('data'))
     '''
     [('./', ['stamps', 't_shirts'], []), 
     ('./stamps', [], ['8.jpg', '9.jpg', '14.jpg', 'stamp1.jpeg']), 
@@ -39,7 +39,6 @@ def hello_world():
 
     docs = DocumentArray([Document(uri=img) for img in image_files])
 
-    # print(f'encoded docs {docs}')
     targets = {
         # "index-labels": {
         #     "label": args.items['product_name'],
