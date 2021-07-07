@@ -82,7 +82,7 @@ function jinaMessage(question) {
         dataType: "json",
     }).success(function (data, textStatus, jqXHR) {
         console.info(data)
-        var top_4_answer = data['data']['docs'][0]['matches'][:4]
+        var top_4_answer = data['data']['docs'][0]['matches'].slice(0,4)
         console.log(top_4_answer)
         var data = top_4_answer.map(match => match.uri);
         $('.message.loading').remove();
@@ -99,4 +99,32 @@ function jinaMessage(question) {
             fakeMessage("Connection failed, did you run <pre>jina hello chatbot</pre> on local? Is your address <pre>" + $('#jina-server-addr').val() + "</pre> ?");
         }, 100);
     });
+}
+
+function get_img(){
+    // 返回右上角的衬衫
+    // 这一行是读取输入框
+    var query = $("#message-text").val();
+    query = query.replace(/\r\n/g,"");
+    query = query.replace(/\n/g,"");
+    $.ajax({
+         type: 'POST',
+         url: $('#jina-server-addr').val() + "/generate",
+         data: {'question': query},
+         success: function (data) {
+             // 这里用于添加回复到对话框中
+             var answer = '<div class="item left"><div class="chat-box"><p class="user"></p><p class="angle"></p><div class="message"><p>' + data + '</p><br><a class="send-btn active" onclick="recallQuestion(this);">不满意该回答</ a></div></div></div>';
+             setTimeout(function() {
+                 $(".list-wrapper").append(answer)
+                 document.getElementById("lm").scrollTop = document.getElementById("lm").scrollHeight;
+                 }, 500)
+             // 这里用于修改图片，通过路由返回的字符串，将对应的图片添加到前端
+             var html = '<img src="../static/data/t_shirts/' + data + '" class="render-img">'
+             // 选择id为render的组件
+             $("#render").empty();
+             $("#render").append(html);
+             // 清空对话框
+             $("#message-text").val('');
+         }
+   });
 }

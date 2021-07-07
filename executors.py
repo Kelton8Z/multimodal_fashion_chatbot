@@ -88,7 +88,7 @@ class MyIndexer(Executor):
 
     # 输入衬衫和印花的地址，返回合成到一起的衬衫路径
     @requests(on='/generate')
-    def imgGeneration(template_path, pattern_path):
+    def imgGeneration(self, template_path, pattern_path, **kwargs):
         def img_resize(image):
             height, width = image.shape[0], image.shape[1]
             # 设置新的图片分辨率框架
