@@ -1,0 +1,14 @@
+jtype: Flow
+version: '1'
+with:
+  prefetch: 10
+  port_expose: 45678
+pods:
+  - name: image_encoder                               # encode images into embeddings with CLIP model
+    uses: CLIPEncoder
+    metas:
+      py_modules: ['executor.py']
+  - name: evaluator
+    uses: MyEvaluator
+    metas:
+      py_modules: ['executor.py']
